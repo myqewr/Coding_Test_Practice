@@ -3,45 +3,25 @@ import java.util.*;
 class Solution {
     public int solution(int m, int n, int[][] puddles) {
         
-        int map[][] = new int[n][m];
+        int map[][] = new int[n+1][m+1];
         for(int[] puddle: puddles){
-            map[puddle[1]-1][puddle[0]-1] = 1;
+            map[puddle[1]][puddle[0]] =-1;
         }
-        
-        int num[][] = new int[n][m];
-        int dist[][] = new int[n][m];
-        
-        for(int i = 0; i<n;i++){
-            for(int j = 0;j<m;j++){
-                if(i==0&&j==0){
-                    dist[0][0]=1;
-                    num[0][0]=1;
+        for(int i = 1; i<n+1;i++){
+            for(int j = 1;j<m+1;j++){
+                if(i==1&&j==1){
+                    map[1][1]=1;
                     continue;}
                 //현재 위치가 물웅덩이가 아니고
-                if(map[i][j]!=1){
-                    int up = i==0?100000:dist[i-1][j]; 
-                    int left = j==0? 100000: dist[i][j-1];
-
-                    if(left>up){
-                        dist[i][j] = up+1;
-                        num[i][j] = num[i-1][j];
-                    }
-                    else if(left<up){
-                        dist[i][j] = left+1;
-                        num[i][j] = num[i][j-1];
-                    }
-                    else{
-                        if(left!=100000){
-                            dist[i][j] = up+1;
-                            num[i][j] = (num[i-1][j]+num[i][j-1])%1000000007;
-                        }
-                        else{dist[i][j] = 100000;}
-                    }
+                if(map[i][j]!=-1){
+                    int up = map[i-1][j]==-1?0:map[i-1][j]; 
+                    int left = map[i][j-1]==-1?0:map[i][j-1];
+                    map[i][j] = (up+left)%1000000007;
                 }
-                else{dist[i][j] = 100000;}
             }   
         }
-        int answer = num[n-1][m-1];
+        
+        int answer = map[n][m];
         return answer;
     }
 }
