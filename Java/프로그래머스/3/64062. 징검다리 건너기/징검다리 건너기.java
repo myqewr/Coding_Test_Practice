@@ -3,11 +3,10 @@ import java.util.stream.Collectors;
 class Solution {
     public int solution(int[] stones, int k) {
         
-        int[] temp = stones.clone(); 
-        Arrays.sort(temp);
-        int answer = temp[0];
-        int end = temp[stones.length-1]+1;
-        int start = answer;
+        // int[] temp = stones.clone();
+        // Arrays.sort(temp);
+        int end = 200000000;// temp[stones.length-1]+1;
+        int start = 1;//temp[0];
         
         while(end>start){
             int mid = (start+end)/2;
