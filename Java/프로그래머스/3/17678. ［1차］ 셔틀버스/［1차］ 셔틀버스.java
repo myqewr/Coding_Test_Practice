@@ -5,18 +5,18 @@ class Solution {
         
         List<Integer> timeTable = Arrays.stream(timetable).map(x->timeToMin(x)).collect(Collectors.toList());
         Collections.sort(timeTable);
+        Queue<Integer> queue = new LinkedList<>(timeTable);
 
-        int index = 0;
         int lastArrival = 0;
         for(int i=0; i<n;i++){
             int onCount = 0;
-            int arrivalTime =9*60+i*t;
+            int arrivalTime =540+i*t;
             
-            while(index<timeTable.size()){
-                int currentCrew = timeTable.get(index);
+            while(queue.size()!=0){
+                int currentCrew = ((LinkedList<Integer>) queue).peekFirst();
                 if(currentCrew>arrivalTime){break;}
+                queue.poll();
                 onCount++;
-                index++;
                 if(onCount==m){
                     lastArrival = currentCrew;
                     break;
@@ -28,18 +28,15 @@ class Solution {
             }
         }
 
-        String hour = String.valueOf(lastArrival/60);
-        hour = hour.length()==1?"0"+hour:hour;
-        String min = String.valueOf(lastArrival%60);
-        min = min.length()==1?"0"+min:min;
-        return hour+":"+min;
-        
+        return String.format("%02d:%02d", lastArrival/60, lastArrival%60);
+
     }
     
     //시간을 분으로 환산
     public int timeToMin(String time){
-        int hour = Integer.valueOf(time.split(":")[0]);
-        int min = Integer.valueOf(time.split(":")[1]);
+        int hour = Integer.valueOf(time.substring(0,2));
+        int min = Integer.valueOf(time.substring(3,5));
         return hour*60+min;
     }
 }
+
