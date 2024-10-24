@@ -3,50 +3,28 @@ class Solution {
     public int solution(int[][] jobs) {
      
         Arrays.sort(jobs,(a,b)->a[0]==b[0]?a[1]-b[1]:a[0]-b[0]);
-        List<Integer[]> jobList = new ArrayList<>();
-        for(int i=0;i<jobs.length;i++){ 
-            Integer[] temp = new Integer[2];
-            temp[0] = Integer.valueOf(jobs[i][0]);
-            temp[1] = Integer.valueOf(jobs[i][1]);
-            jobList.add(temp);}
-        
-        Arrays.sort(jobs,(a,b)->a[1]-b[1]);
-        List<Integer[]> jobListDuration = new ArrayList<>();
-        for(int i=0;i<jobs.length;i++){ 
-            Integer[] temp = new Integer[2];
-            temp[0] = Integer.valueOf(jobs[i][0]);
-            temp[1] = Integer.valueOf(jobs[i][1]);
-            jobListDuration.add(temp);
-        }
+        //소요시간 기준 우선순위 큐 생성
+        PriorityQueue<int[]> pq= new PriorityQueue<>((a,b)->a[1]-b[1]);
         
         int lastTime = 0;
         int totalTime = 0;
-        while(jobList.size()!=0){
-            Integer[] job = new Integer[2];
-            
-            //당장 처리할 프로세스가 없을 때 -> 요청이 들어온 시점으로 판단
-            if(lastTime < jobList.get(0)[0]){
-                job = jobList.get(0);
-                totalTime+= job[1];
-                lastTime =job[0] + job[1];
-                jobList.remove(0);
-                jobListDuration.remove(job);
-                
+        int index = 0;int len = 0;
+        while(len<jobs.length){    
+            while(index<jobs.length && jobs[index][0]<=lastTime){
+                pq.add(jobs[index]);
+                index++;
             }
-            //당장 처리해야 할 프로세스가 존재할 때 -> 소요 시간으로 판단
+            if(pq.size()==0){
+                totalTime+= jobs[index][1];
+                lastTime = jobs[index][0]+jobs[index][1];
+                index++;len++;
+            }
             else{
-                int index=0;
-                int minTime = Integer.MAX_VALUE;
-                List<Integer[]> availableList = new ArrayList<>();
-                for(int i=0;i<jobList.size();i++){
-                    job = jobList.get(i);
-                    if(job[0]>lastTime){break;}
-                    if(job[1]<minTime){minTime = job[1]; index = i;}
-                }
-                totalTime+= Math.abs(jobList.get(index)[0]-lastTime) + jobList.get(index)[1];
-                lastTime +=jobList.get(index)[1];
-                jobList.remove(index);     
-            }
+                int[] job = pq.poll();
+                totalTime+= Math.abs(job[0]-lastTime) + job[1];
+                lastTime += job[1];
+                len++;}
+            
         }
         return totalTime/jobs.length;
     }
