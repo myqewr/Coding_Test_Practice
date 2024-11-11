@@ -2,34 +2,48 @@ import java.util.*;
 class Solution {
     public long solution(int[] sequence) {
         
-        int len = sequence.length;
+        int[] sec1 = new int[sequence.length];
+        int[] sec2 = new int[sequence.length];
         
-        long[][] dp = new long[len][2]; 
-        
-        long[] seq1 = new long[len];
-        long[] seq2 = new long[len];
-        for(int i=0;i<len;i++){
+        for(int i=0;i<sequence.length;i++){
             if(i%2==0){
-                seq1[i] = sequence[i]*(-1);
-                seq2[i] = sequence[i];
+                sec1[i] = sequence[i]*(-1);
+                sec2[i] = sequence[i];
             }
             else{
-                seq1[i] = sequence[i];
-                seq2[i] = sequence[i]*(-1);
+                sec1[i] = sequence[i];
+                sec2[i] = sequence[i]*(-1);
             }
         }
-        dp[0][0] = seq1[0]; dp[0][1] = seq2[0];
-        for(int i=1;i<len;i++){
-            dp[i][0] = Math.max(dp[i-1][0]+seq1[i], seq1[i]);
-            dp[i][1] = Math.max(dp[i-1][1]+seq2[i], seq2[i]);
+        
+        long max = 0;
+        long current = 0;
+        for(int value : sec1){
+            if(value>0){
+                current = Math.max(current,0);
+                current = current + value;
+                max = Math.max(max,current);
+            }
+            else if(value<0){
+                current = current + value;
+            }
         }
         
-        long max=0;
-        for(long[] value : dp){
-            long temp = Math.max(value[0],value[1]);
-            max = Math.max(temp,max);
+        long max2 = 0;
+        current = 0;
+        for(int value : sec2){
+            if(value>0){
+                current = Math.max(current,0);
+                current = current + value;
+                max2 = Math.max(max2,current);
+            }
+            else if(value<0){
+                current = current + value;
+            }
         }
-
-        return max;
+        
+        
+        long answer = Math.max(max,max2);
+        return answer;
     }
 }
