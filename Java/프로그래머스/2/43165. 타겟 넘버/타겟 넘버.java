@@ -1,18 +1,30 @@
+import java.util.*;
+import java.util.Collections;
+
 class Solution {
-    
-    public int dfs(int numbers[], int target, int nth, int result,int num){
-        if(nth == numbers.length){
-            if(result==target){
-                num = num+1;}
-            return num;}
-        
-        int currentNum = dfs(numbers, target, nth+1, result+numbers[nth], num);
-        currentNum= dfs(numbers, target, nth+1, result-numbers[nth], currentNum);
-        return currentNum;
-        
-    }
-    
     public int solution(int[] numbers, int target) {
-        return dfs(numbers,target,0,0,0);
+        List<Integer> numberList = new ArrayList<>();
+        for(int number:numbers){numberList.add(number);}
+        return dfs(numberList,target,0);
+        }
+    
+    
+    private int dfs(List<Integer> numbers, int target, int current){
+        if(numbers.isEmpty()){
+            if(current==target) {return 1;}
+            else return 0;
+        }
+        
+        int sum = 0;
+        
+        List<Integer> newNumbers = new ArrayList<>(numbers);
+        int value = newNumbers.get(0);
+        newNumbers.remove(0);
+        sum+=dfs(newNumbers, target,current+value);
+        sum+=dfs(newNumbers, target,current-value);
+            
+        return sum;
     }
 }
+
+   
