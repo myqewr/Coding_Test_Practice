@@ -1,32 +1,36 @@
 import java.util.*;
 import java.util.stream.Collectors;
 class Solution {
+    
     public int[] solution(String[] gems) {
-        List<String> gemList =  Arrays.asList(gems);
-        int num = new HashSet<>(gemList).size();
-        Map<String,Integer> map = new HashMap<>();
+        int size = gems.length;
+        int total = (int)Arrays.stream(gems).distinct().count();
+        int s = 0;
+        int sMin = 0;
+        int f = s;
+        int min = size;
         
-        int[] answer = {0,0};
-        int start = 0;
-        int minNum = gems.length+1;
-        for(int i=0;i<gems.length;i++){
-            map.put(gems[i],i);
-            if(gems[i].equals(gems[start])){
-                int min = gems.length+1;
-                for(int value : map.values()){
-                    min = Math.min(min,value);
+        Map<String,Integer> map = new HashMap<>();
+        map.put(gems[0],1);
+    
+        while(f!=size &&s<=f){
+            if(map.size() == total){
+                if(min>f-s+1){
+                    min = f-s+1;
+                    sMin = s;
                 }
-                start= min;
+                map.put(gems[s],map.get(gems[s])-1);
+                if(map.get(gems[s])==0){map.remove(gems[s]);}
+                s++;
             }
-            if(map.size()==num){
-                if(minNum>i-start+1){
-                    minNum = i-start +1;
-                    answer[0] = start+1;
-                    answer[1] = i+1;
-                    if(minNum == num){return answer;}
-                }
+            else{
+                f++;
+                if(f<size)map.put(gems[f],map.getOrDefault(gems[f],0)+1);
             }
         }
+        
+        int[] answer = {sMin+1,sMin+min};
         return answer;
     }
 }
+
