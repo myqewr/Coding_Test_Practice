@@ -1,49 +1,71 @@
 import java.util.*;
+import java.util.stream.Collectors;
 class Solution {
     
-    public Boolean check(String a, String b){
-        char[] aChar = a.toCharArray();
-        char[] bChar = b.toCharArray();
+    class Node{
+        int depth;
+        String text;
+        List<String> candidates;
         
-        int different = 0;
-        for(int i=0;i<aChar.length;i++){
-            if(aChar[i]!=bChar[i]){different+=1;}
+        Node(int depth,String text,List<String> candidates){
+            this.depth = depth;
+            this.text = text;
+            this.candidates = candidates;
         }
-        if(different==1){return true;}
-        return false;
-        
     }
     
     public int solution(String begin, String target, String[] words) {
         
-        Map<String,Boolean> visited = new HashMap<>();
-        Queue<String> queue = new LinkedList<>();
-        Map<String,Integer> distance = new HashMap<>();
-        Map<String,String> pre = new HashMap<>();
+        Queue<Node> queue = new LinkedList();
         
-        queue.add(begin);
-        distance.put(begin,0);
-        distance.put(target,0);
-        pre.put(begin,begin);
+        List<String> candidates = Arrays
+            .stream(words)
+            .filter(w -> check(begin,w))
+            .collect(Collectors.toList());
         
-        while(queue.size()!=0){
-            String word = queue.poll();
-            
-            for(String wordDic : words){
-                //방문한적 없고
-                if(!visited.containsKey(wordDic)){
-                    //변환 가능하다면
-                    if(check(wordDic,word)){
-                        queue.add(wordDic);
-                        pre.put(wordDic,word);
-                        visited.put(wordDic,true);
-                        int beforeDistance = distance.get(pre.get(wordDic));
-                        distance.put(wordDic,beforeDistance+1);
-                        if(wordDic ==target){break;}
-                    }
-                }     
-            } 
+        System.out.println(candidates);
+        
+        for(String candidate : candidates){
+            List<String> newCandidates = new ArrayList<>(Arrays.asList(words));
+            newCandidates.remove(candidate);
+            queue.add(new Node(1,candidate,newCandidates));
         }
-        return distance.get(target);
+        
+        while(!queue.isEmpty()){
+            
+            Node node = queue.poll();
+            
+            //완성된 경우
+            if(node.text.equals(target)){
+                return node.depth;
+            }
+            //완성되지 않은 경우
+            node.candidates
+                .stream()
+                .filter(c -> check(node.text,c))
+                .forEach(c-> {
+                    List<String> nc3 = new ArrayList<>(node.candidates);
+                    nc3.remove(node.text);
+                    queue.add(new Node(node.depth+1,c,nc3));
+             }) ; 
+        }
+                
+        int answer = 0;
+        return answer;
+    }
+    
+    public Boolean check(String target, String subject){
+        
+        char[] t = target.toCharArray();
+        char[] s = subject.toCharArray();
+        
+        int num =0;
+        for(int i=0;i<t.length;i++){
+            if(t[i]!=s[i]){num++;}
+        }
+
+        if(num==1){return true;}
+        else{return false;}
+        
     }
 }
