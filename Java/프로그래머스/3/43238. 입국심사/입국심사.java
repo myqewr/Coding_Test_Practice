@@ -1,30 +1,43 @@
 import java.util.*;
 class Solution {
     
-    public boolean validation(int[] times, long time, int n){
-        long num = 0;
-        for(int t : times){
-            num+=time/t;
-        }
-        return n<=num;
-    }
-    
     public long solution(int n, int[] times) {
-        Arrays.sort(times);
-        long maxTime = (long)n * times[times.length-1];
-        long minTime = 0L;
+        double up = 0;
+        double down = 1;
+        for(int time: times){
+            down*=(double)time;
+            up+=(double)time;
+        }
         
-        while(maxTime>minTime){
+        Arrays.sort(times);
+        long maxTime = times[times.length-1];
+        
+        long l = 0;
+        long r = maxTime *n; 
+        long mid = (l+r)/2;
+        
+        while(l<r){
             
-            long time = (maxTime+minTime)/2;
-            
-            if(validation(times,time,n)){
-                maxTime = time;
+            if(check(times,mid)>=(long)n){
+                r = mid;
             }
             else{
-                minTime = time + 1;
+                l = mid+1;
             }
+            mid = (l+r)/2;
+            
         }
-        return minTime;
+        
+        return l;
     }
+    
+    long check(int[] times, long min){
+        long sum=0;
+        for(int time:times){
+            sum+=min/time;
+        }
+        return sum;
+    }
+    
+        
 }
