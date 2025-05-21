@@ -1,53 +1,58 @@
 import java.util.*;
 class Solution {
+    
+    static List<Set<Integer>> result = new ArrayList<>();
+    
+    class Node{
+        List<Integer> list = new ArrayList<>();
+        Integer index;
+        public Node(List<Integer>list,Integer index){
+            this.list=list;
+            this.index=index;
+        }
+    }
+    
     public int solution(String[][] relation) {
-        
-        Queue<List<Integer>> queue = new LinkedList<>();
-        
-        List<List<Integer>> answer= new ArrayList<>();
-        
-        for(int i=0;i<relation[0].length;i++){
-            List<Integer> visit = new ArrayList();
-            visit.add(i);
-            queue.add(visit);
+        int size= relation[0].length;
+        int answer = 0;
+        Queue<Node> queue = new LinkedList<>();
+        for(int i=0;i<size;i++){
+            queue.add(new Node(new ArrayList<>(),i));
         }
-        int sum = 0;
         
-        while(queue.size()!=0){
-            
-            List<Integer> visit = queue.poll();
-            
-            int lastIndex = visit.size()-1;
-            int last = visit.get(lastIndex);
-            
-            Map<List<String>,Integer> valuesList = new HashMap<>();
-            
-            for(String[] tuple : relation){
-                List<String> values = new ArrayList<>();
-                for(Integer col : visit){
-                    values.add(tuple[col]);
-                }
-                valuesList.put(values,1);
+        while(!queue.isEmpty()){
+            Node node = queue.poll();
+            int current = node.index;
+            List<Integer> list = new ArrayList<>(node.list);
+            list.add(current);
+            if(func(list,relation)){
+                result.add(new HashSet<>(list));answer++;continue;
             }
-            //유일성 만족함.
-            if(valuesList.keySet().size()==relation.length){
-                Boolean check = true;
-                for(List<Integer> temp : answer){
-                    if(visit.containsAll(temp)){
-                        check = false;
-                        break;
-                    }
-                }
-                if(check){answer.add(visit);}
-            }
-            else {
-                for(int i=last+1;i<relation[0].length;i++){
-                List<Integer> newVisit = new ArrayList<>(visit);
-                newVisit.add(i);
-                queue.add(newVisit);
-                }
+            for(int i=current+1;i<size;i++){
+                queue.add(new Node(list,i));
             }
         }
-        return answer.size();
+        return answer;
+    }
+    
+    Boolean func(List<Integer> list, String[][] relation){
+        
+        Set<Integer> newList = new HashSet<>(list);
+        for(Set<Integer> check : result){
+            if(newList.containsAll(check)) {return false;}
+        }
+        
+        Set<String> set = new HashSet<>();
+        
+        for(int i=0;i<relation.length;i++){
+            String string = "";
+            for(int index : list){
+                string+=relation[i][index];
+            }
+            set.add(string);
+        }
+        
+        return set.size()==relation.length;
+    
     }
 }
