@@ -1,82 +1,75 @@
 import java.util.*;
-import java.util.stream.Collectors;
 class Solution {
-    public String[] solution(String[] orders, int[] course) {
-        
-        //course를 list로 변환
-        List<Integer> listCourse = new ArrayList<>();
-        Arrays.stream(course).forEach(c->listCourse.add(c));
-        
-        //코스 개수 , 메뉴 구성 , 주문 횟수
-        Map<Integer,Map<String, Integer>> numMap = new HashMap<>();
-        for(int c : course){
-            Map<String, Integer> mapTemp = new HashMap<>();
-            numMap.put(c,mapTemp);
+    
+    class Node{
+        int index;
+        int deepth;
+        Set<String> set ;
+        public Node(int index,int deepth,Set<String>set){
+            this.index = index;
+            this.deepth = deepth;
+            this.set = set;
         }
-        
+    }
+    
+    public String[] solution(String[] orders, int[] courses) {
+        List<Integer> course = new ArrayList<>();
+        for(int c: courses){course.add(c);}
+        Map<Set<String>,Integer> map = new HashMap<>();
+        List<Set<String>> orderSet = new ArrayList<>();
+        Set<String> set = new HashSet<>();
         for(String order : orders){
+            List<String> stringList =  Arrays.asList(order.split(""));
+            set.addAll(stringList);
+            orderSet.add(new HashSet<>(stringList));
+        }
+        List<String> chars  = new ArrayList<>(set);
+        Collections.sort(chars);
+        Queue<Node> queue = new LinkedList<>();
 
-            Map<String,Integer> indexMap = new HashMap<>();
-            
-            //{현재 노드, 현재 노드에 도착하기 까지 누적된 문자열}
-            Queue<String[]> queue = new LinkedList<>();
-            
-            //메뉴 문자열을 정렬하고, 문자 list로 변환
-            char[] orderChar = order.toCharArray();
-            Arrays.sort(orderChar);
-            List<String> orderString = new ArrayList<>();
-            for(int i=0 ; i<order.length();i++){
-                String value = String.valueOf(orderChar[i]);
-                orderString.add(value);
-                indexMap.put(value,i);
-                String[] queueValue = {value,""};
-                queue.add(queueValue);
-            }
-            
-            while(queue.size()!=0){
-                String[] s = queue.poll();
-                String currentString = s[1] + s[0];
-                int len = currentString.length();
-                
-                //문제에서 요구하는 코스 메뉴 구성 개수일 경우에만 로직 진행
-                if(listCourse.contains(len)){
-                    Map<String, Integer> map = numMap.get(len);
-                    
-                    // 같은 조합의 코스 구성 주문 횟수 +1
-                    if(map.containsKey(currentString)){
-                        int numOfOrder = map.get(currentString)+1;
-                        map.replace(currentString, numOfOrder);
-                    }
-                    //한번도 주문된적 없으면 주문횟수 1로 초기화
-                    else{
-                        map.put(currentString,1);
+        for(int i=0;i<chars.size();i++){
+            Set<String> sett = new HashSet<>();
+            sett.add(chars.get(i));
+            queue.add(new Node(i,1,sett));
+        }
+        
+        while(!queue.isEmpty()){
+            Node node = queue.poll();
+            if(course.contains(node.deepth)){
+                for(Set<String> order : orderSet){
+                if(order.containsAll(node.set)){
+                    int num =  map.getOrDefault(node.set,0);
+                    map.put(node.set,num+1);
                     }
                 }
-                // queue에 삽입 ->  {child node , 현재까지 누적된 코스 구성}
-                for(int i = indexMap.get(s[0])+1;i<order.length();i++){
-                    String value = orderString.get(i);
-                    String[] queueValue = {value, currentString};
-                    queue.add(queueValue);
-                } 
             }
-        }
-
-        List<String> answer = new ArrayList<>();
-        for(Integer num : course){
-            Map<String,Integer> map = numMap.get(num);
-            if(map.size()==0){break;}
-            int max = map.values().stream().max((a,b)->a-b).get();
             
-            //한번만 주문된거면 구성에 포함 x
-            if(max== 1){break;}
-            for(String value : map.keySet()){
-                if(map.get(value)==max){
-                    answer.add(value);
-                }
+            if(!map.containsKey(node.set)&&course.contains(node.deepth)){continue;}
+            for(int i=node.index+1;i<chars.size();i++){
+                Set<String> newSet = new HashSet<>(node.set);
+                newSet.add(chars.get(i));
+                queue.add(new Node(i,node.deepth+1,newSet));
+            }
+            
+        }
+        
+        Map<Integer,Integer> maxMap = new HashMap<>();
+        for(Set<String> key : map.keySet()){
+            if(map.get(key)>=2){
+                int v = maxMap.getOrDefault(key.size(),0);
+                maxMap.put(key.size(),Math.max(v,map.get(key)));
+            } 
+        }
+        
+        List<String> result = new ArrayList<>();
+        for(Set<String> key : map.keySet()){
+            if(map.get(key)==maxMap.get(key.size())){
+                List<String> temp = new ArrayList<>(key);
+                Collections.sort(temp);
+                result.add(String.join("",temp));
             }
         }
-        String[] answerArray = answer.toArray(new String[answer.size()]);
-        Arrays.sort(answerArray);
-        return answerArray;
+        Collections.sort(result);
+        return result.toArray(new String[0]);
     }
 }
