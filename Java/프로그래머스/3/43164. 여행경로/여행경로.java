@@ -1,75 +1,51 @@
 import java.util.*;
 class Solution {
     
-    public List<List<String>> dfs(List<List<String>> result,List<String> way,String[] current,List<String[]> tickets, int num){
+    public static int size ;
+    public static Boolean isCompleted = false;
+    public String[] solution(String[][] array){
         
-        if(tickets.size()==0){
-            result.add(way);
-            return result;
+        size = array.length;
+        
+        List<String[]> tickets = new ArrayList<>();
+        Arrays.sort(array,(a,b)-> (a[0]+a[1]).compareToIgnoreCase((b[0]+b[1])));
+        
+        List<String[]> icnList = new ArrayList<>();
+        for(String[] arr : array){
+            if(arr[0].equals("ICN")){icnList.add(arr);}
+            tickets.add(arr);
         }
         
-        for(String[] ticket:tickets){
-            if(current[1].equals(ticket[0])){
-                List<String[]> newTickets = new ArrayList<>(tickets);
-                newTickets.remove(ticket);
-                List<String> newWay = new ArrayList<>(way);
-                newWay.add(ticket[1]);
-                result = dfs(result,newWay,ticket,newTickets,num);
-                if(result.size()>0){
-                    break;  
-                }
+        
+        for(String[] icn : icnList){
+            List<String> result = bfs(icn[0],List.of("ICN"),tickets);
+            if(result.size()==size+1){
+                return result.toArray(new String[0]);
             }
         }
+        
+        String[] answer = {};
+        return answer;
+    }
+    
+    public List<String> bfs(String from, List<String> way,List<String[]> candidates){
+        
+        if(isCompleted==true){return List.of();}
+        
+        if(way.size()==size+1){
+            isCompleted = true;
+            return way;
+        }
+        List<String> result = new ArrayList<>();
+        for(String[] candidate : candidates){
+            if(candidate[0].equals(from)){ //방문 가능하면
+                List<String> newWay = new ArrayList<>(way);
+                newWay.add(candidate[1]);
+                List<String[]> newCandidates = new ArrayList<>(candidates);
+                newCandidates.remove(candidate);
+                result.addAll(bfs(candidate[1],newWay,newCandidates));
+            }   
+        }
         return result;
-    }
-    
-    public List<String[]> sort(String[][] tickets){
-        String[] stringList = new String[tickets.length];
-        Map<String,Integer> mapTicket = new HashMap<>();
-        
-        for(int i=0;i<tickets.length;i++){
-            String ticketString = tickets[i][0]+tickets[i][1];
-            stringList[i] = ticketString;
-            mapTicket.put(ticketString,i);
-        }
-        Arrays.sort(stringList);
-        
-        List<String[]> newTickets = new ArrayList<>();
-        for(String ticket : stringList){
-            int num = mapTicket.get(ticket);
-            newTickets.add(tickets[num]);
-        }
-        
-        return newTickets;
-        
-    }
-    
-    public String[] solution(String[][] tickets) {
-        
-        List<String[]> sortedTickets = sort(tickets);
-        List<String> answer = new ArrayList<>();
-
-        List<String[]> icnList = new ArrayList<>();
-        sortedTickets.forEach(t->{
-            if(t[0].equals("ICN")){
-                icnList.add(t);}
-        });
-        
-        for(String[] ticket:icnList){
-            List<List<String>> result = new ArrayList<>();
-            List<String> way = new ArrayList<>();
-            way.add(ticket[0]); way.add(ticket[1]);
-            
-            List<String[]> newTickets = new ArrayList<>(sortedTickets);
-            newTickets.remove(ticket);
-            
-            result = dfs(result,way,ticket,newTickets,tickets.length);
-            
-            if(result.size()>0){
-                answer = result.get(0);
-                break;
-            }                
-        }
-        return answer.toArray(new String[tickets.length+1]);
     }
 }
